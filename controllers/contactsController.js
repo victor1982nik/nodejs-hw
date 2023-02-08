@@ -23,7 +23,7 @@ const getContactsController = async (req, res, next) => {
   }
 
   const contacts = await getContacts(filters, {skip, limit});
-  res.json({ contacts, skip, limit });
+  res.json({ contacts});
 };
 
 const getContactByIdController = async (req, res, next) => {
