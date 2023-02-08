@@ -9,7 +9,6 @@ const {
 
 
 const getContactsController = async (req, res, next) => {  
-  const { _id: owner } = req.user;
   let {
     page = 1,
     limit = 20,
@@ -17,7 +16,13 @@ const getContactsController = async (req, res, next) => {
   } = req.query;
   limit = parseInt(limit) > 20 ? 20 : parseInt(limit);
   const skip = (parseInt(page) - 1) * limit;
-  const contacts = await getContacts(owner, {skip, limit, favorite});
+
+  const filters = { owner: req.user._id };
+  if (favorite) {
+    filters.favorite = favorite
+  }
+
+  const contacts = await getContacts(filters, {skip, limit});
   res.json({ contacts, skip, limit });
 };
 
