@@ -43,5 +43,5 @@ const userSubscriptionValidation = (req, res, next) => {
 module.exports = {
   userRegisterValidation,
   userLoginValidation,  
-  userSubscriptionValidation
+  userSubscriptionValidation  
 };
