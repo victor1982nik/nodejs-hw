@@ -2,15 +2,18 @@ const { User } = require("../db/userModel");
 const {NotAutorizedError, ConflictError} = require("../helpers/errors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const gravatar = require('gravatar');
 
 const registration = async (email, password) => {
   const userExists = await User.findOne({ email });
   if (userExists) {
      throw new ConflictError(`"Email ${email} in use`)
   }
+  const avatarURL = gravatar.url(email);
   const user = new User({
     email,
     password,
+    avatarURL,
   });
   await user.save();
   return user;
