@@ -27,10 +27,7 @@ const login = async (email, password) => {
   const user = await User.findOne({ email });
   if (!user || !(await bcrypt.compare(password, user.password))) {
     throw new NotAutorizedError(`Email or password is wrong`);
-  }
-  // if (!await bcrypt.compare(password, user.password)) {
-  //   throw new NotAutorizedError(`Wrong password`)
-  // }
+  }  
   const token = jwt.sign(
     {
       _id: user._id,
@@ -65,7 +62,7 @@ const updateAvatar = async (_id, file) => {
 
   try {
     const image = await Jimp.read(tempUpload);
-    await image.resize(250, 250);
+    image.resize(250, 250);
     await image.writeAsync(tempUpload);
     await fs.rename(tempUpload, resultUpload);        
     return await User.findByIdAndUpdate(_id, { avatarURL }, { new: true });    
