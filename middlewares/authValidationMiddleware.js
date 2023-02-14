@@ -3,7 +3,8 @@ const { ValidationError } = require("../helpers/errors");
 
 const joiRegisterShema = Joi.object({
   password: Joi.string().min(6).required(),
-  email: Joi.string().required()  
+  email: Joi.string().required(),  
+  avatarURL: Joi.string()
 }) 
 
 const joiLoginShema = Joi.object({
@@ -42,5 +43,5 @@ const userSubscriptionValidation = (req, res, next) => {
 module.exports = {
   userRegisterValidation,
   userLoginValidation,  
-  userSubscriptionValidation
+  userSubscriptionValidation  
 };

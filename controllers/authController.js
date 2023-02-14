@@ -1,4 +1,11 @@
-const { registration, login, logout, current, changeSubscription } = require("../services/authService");
+const {
+    registration,
+    login,
+    logout,
+    current,
+    changeSubscription,
+    updateAvatar
+} = require("../services/authService");
 
 const registrationController = async (req, res) => {
     const {email, password} = req.body;
@@ -34,12 +41,18 @@ const currentUserController = async (req, res) => {
     res.json({ email, subscription  })
 }
  
-const changeSubscriptionController = async (req, res) => {
-    console.log("In changeSuscriptionController")
+const changeSubscriptionCtrl = async (req, res) => {    
     const { _id } = req.user;
     const { subscription } = req.body
     const user = await changeSubscription(_id, subscription)
     res.json({ email: user.email, subscription: user.subscription  })
+}
+
+const updateAvatarController = async (req, res) => {
+    const { _id } = req.user;
+    const file = req.file
+    const user = await updateAvatar(_id, file);
+    res.json({ avatarURL: user.avatarURL  })    
 }
 
 module.exports = {
@@ -47,5 +60,6 @@ module.exports = {
     loginController,
     logoutController,
     currentUserController,
-    changeSubscriptionController
+    changeSubscriptionCtrl,
+    updateAvatarController
 }
