@@ -35,5 +35,5 @@ userSchema.pre("save", async function () {
 const User = model("User", userSchema);
 
 module.exports = {
-  User,
+  User
 };
