@@ -6,7 +6,10 @@ const gravatar = require("gravatar");
 const Jimp = require("jimp");
 const fs = require("fs/promises");
 const path = require("path");
+const sgMail = require("@sendgrid/mail");
+
 const avatarsDir = path.resolve("public/avatars");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const registration = async (email, password) => {
   const userExists = await User.findOne({ email });
@@ -20,6 +23,20 @@ const registration = async (email, password) => {
     avatarURL,
   });
   await user.save();
+
+  const msg = {
+    to: email,
+    from: 'victor1982nik@gmail.com', 
+    subject: 'registration email',
+    text: 'Thank you for registration at your service',
+    html: '<h1>Thank you for registration at your service</h1>',
+  };
+  try {
+    await sgMail.send(msg)
+  }catch(e) {
+    console.log(e)
+  }
+  
   return user;
 };
 
