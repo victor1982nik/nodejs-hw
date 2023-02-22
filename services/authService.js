@@ -7,6 +7,7 @@ const Jimp = require("jimp");
 const fs = require("fs/promises");
 const path = require("path");
 const sgMail = require("@sendgrid/mail");
+const {nanoid} = require("nanoid");
 
 const avatarsDir = path.resolve("public/avatars");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -16,11 +17,14 @@ const registration = async (email, password) => {
   if (userExists) {
     throw new ConflictError(`"Email ${email} in use`);
   }
-  const avatarURL = gravatar.url(email);
+  const avatarURL = gravatar.url(email); 
+  const verificationToken = nanoid();
+ 
   const user = new User({
     email,
     password,
     avatarURL,
+    verificationToken
   });
   await user.save();
 
@@ -29,15 +33,24 @@ const registration = async (email, password) => {
     from: 'victor1982nik@gmail.com', 
     subject: 'registration email',
     text: 'Thank you for registration at your service',
-    html: '<h1>Thank you for registration at your service</h1>',
+    html: `Please confirm your email adress <a href="http://localhost:3000/api/users/verify/${verificationToken}">Подтвердить регистрацию</a>`,
   };
-  try {
-    await sgMail.send(msg)
-  }catch(e) {
-    console.log(e)
+  
+  await sgMail.send(msg);  
+  return user;
+};
+
+const registrationConfirmation = async (verificationToken) => {  
+  const user = await User.findOne({verificationToken});  
+  if(!user){
+    throw new NotAutorizedError(`User not found`);
   }
   
-  return user;
+  user.verificationToken = null;
+  user.verify = true;
+  
+  await user.save();
+  return {message: 'Verification successful'};
 };
 
 const login = async (email, password) => {
@@ -96,4 +109,5 @@ module.exports = {
   current,
   changeSubscription,
   updateAvatar,
+  registrationConfirmation
 };
