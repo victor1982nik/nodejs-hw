@@ -54,7 +54,7 @@ const registrationConfirmation = async (verificationToken) => {
 };
 
 const login = async (email, password) => {
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email, verify: true });
   if (!user || !(await bcrypt.compare(password, user.password))) {
     throw new NotAutorizedError(`Email or password is wrong`);
   }  
