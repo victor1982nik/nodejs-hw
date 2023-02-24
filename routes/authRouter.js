@@ -9,7 +9,8 @@ const {
   currentUserController,
   changeSubscriptionCtrl,
   updateAvatarController,
-  registrationConfirmationCtrl
+  registrationConfirmationCtrl,
+  retryVerificationCtrl
 } = require("../controllers/authController");
 const {
   userRegisterValidation,
@@ -30,5 +31,6 @@ router.patch("/avatars",
   asyncWrapper(updateAvatarController)
 );
 router.get("/verify/:verificationToken", asyncWrapper(registrationConfirmationCtrl));
+router.post("/verify", asyncWrapper(retryVerificationCtrl));
 
 module.exports = router;

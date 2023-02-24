@@ -53,10 +53,31 @@ const registrationConfirmation = async (verificationToken) => {
   return {message: 'Verification successful'};
 };
 
+const retryVerification = async (email) => {  
+  if(!email) {
+    throw new NotAutorizedError("missing required field email");
+  }
+  const user = await User.findOne({ email, verify: true });
+  if(!user){
+    throw new NotAutorizedError("Verification has already been passed");
+  }
+  const msg = {
+    to: email,
+    from: 'victor1982nik@gmail.com', 
+    subject: 'registration email',
+    text: 'Thank you for registration at your service',
+    html: `Please confirm your email adress <a href="http://localhost:3000/api/users/verify/${user.verificationToken}">Подтвердить регистрацию</a>`,
+  };
+  
+  await sgMail.send(msg);  
+  return {message: 'Verification email sent'};
+};
+
+
 const login = async (email, password) => {
   const user = await User.findOne({ email, verify: true });
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    throw new NotAutorizedError(`Email or password is wrong`);
+    throw new NotAutorizedError("Email or password is wrong");
   }  
   const token = jwt.sign(
     {
@@ -109,5 +130,6 @@ module.exports = {
   current,
   changeSubscription,
   updateAvatar,
-  registrationConfirmation
+  registrationConfirmation,
+  retryVerification
 };

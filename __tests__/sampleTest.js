@@ -10,7 +10,7 @@ const app = require("../app");
 
 describe("test login routes", () => {
 	beforeAll(() => {
-		mongoose.connect(MONGO_URL).then(() => (app.listen(5000)));
+		mongoose.connect(MONGO_URL).then(() => console.log("db connected"));
 	});
 	afterAll(async() => await mongoose.disconnect());
 
