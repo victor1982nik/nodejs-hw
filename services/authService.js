@@ -57,7 +57,7 @@ const retryVerification = async (email) => {
   if(!email) {
     throw new NotAutorizedError("missing required field email");
   }
-  const user = await User.findOne({ email, verify: true });
+  const user = await User.findOne({ email, verify: false });
   if(!user){
     throw new NotAutorizedError("Verification has already been passed");
   }

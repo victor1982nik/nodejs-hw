@@ -24,14 +24,14 @@ const registrationController = async (req, res) => {
 const registrationConfirmationCtrl = async (req, res) => {    
     const {verificationToken} = req.params;    
     const result = await registrationConfirmation(verificationToken);
-    res.json({result})
+    res.json(result)
 }
+
 const retryVerificationCtrl = async (req, res) => {    
     const {email} = req.body;  
     const result = await retryVerification(email);
-    res.json({result})
+    res.json(result)
 }
-
 
 const loginController = async (req, res) => {
     const {email, password} = req.body;
