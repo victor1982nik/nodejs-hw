@@ -6,27 +6,78 @@ const gravatar = require("gravatar");
 const Jimp = require("jimp");
 const fs = require("fs/promises");
 const path = require("path");
+const sgMail = require("@sendgrid/mail");
+const {nanoid} = require("nanoid");
+
 const avatarsDir = path.resolve("public/avatars");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const registration = async (email, password) => {
   const userExists = await User.findOne({ email });
   if (userExists) {
     throw new ConflictError(`"Email ${email} in use`);
   }
-  const avatarURL = gravatar.url(email);
+  const avatarURL = gravatar.url(email); 
+  const verificationToken = nanoid();
+ 
   const user = new User({
     email,
     password,
     avatarURL,
+    verificationToken
   });
   await user.save();
+
+  const msg = {
+    to: email,
+    from: 'victor1982nik@gmail.com', 
+    subject: 'registration email',
+    text: 'Thank you for registration at your service',
+    html: `Please confirm your email adress <a href="http://localhost:3000/api/users/verify/${verificationToken}">Подтвердить регистрацию</a>`,
+  };
+  
+  await sgMail.send(msg);  
   return user;
 };
 
+const registrationConfirmation = async (verificationToken) => {  
+  const user = await User.findOne({verificationToken});  
+  if(!user){
+    throw new NotAutorizedError(`User not found`);
+  }
+  
+  user.verificationToken = null;
+  user.verify = true;
+  
+  await user.save();
+  return {message: 'Verification successful'};
+};
+
+const retryVerification = async (email) => {  
+  if(!email) {
+    throw new NotAutorizedError("missing required field email");
+  }
+  const user = await User.findOne({ email, verify: false });
+  if(!user){
+    throw new NotAutorizedError("Verification has already been passed");
+  }
+  const msg = {
+    to: email,
+    from: 'victor1982nik@gmail.com', 
+    subject: 'registration email',
+    text: 'Thank you for registration at your service',
+    html: `Please confirm your email adress <a href="http://localhost:3000/api/users/verify/${user.verificationToken}">Подтвердить регистрацию</a>`,
+  };
+  
+  await sgMail.send(msg);  
+  return {message: 'Verification email sent'};
+};
+
+
 const login = async (email, password) => {
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email, verify: true });
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    throw new NotAutorizedError(`Email or password is wrong`);
+    throw new NotAutorizedError("Email or password is wrong");
   }  
   const token = jwt.sign(
     {
@@ -79,4 +130,6 @@ module.exports = {
   current,
   changeSubscription,
   updateAvatar,
+  registrationConfirmation,
+  retryVerification
 };

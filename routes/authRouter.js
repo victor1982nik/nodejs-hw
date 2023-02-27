@@ -8,13 +8,14 @@ const {
   logoutController,
   currentUserController,
   changeSubscriptionCtrl,
-  updateAvatarController
+  updateAvatarController,
+  registrationConfirmationCtrl,
+  retryVerificationCtrl
 } = require("../controllers/authController");
 const {
   userRegisterValidation,
   userLoginValidation,
-  userSubscriptionValidation,
-  
+  userSubscriptionValidation  
 } = require("../middlewares/authValidationMiddleware");
 const { authMiddleware } = require("../middlewares/authMiddleware");
 const uploadMiddleware = require("../middlewares/uploadMiddleware");
@@ -29,5 +30,7 @@ router.patch("/avatars",
   uploadMiddleware.single("avatar"),
   asyncWrapper(updateAvatarController)
 );
+router.get("/verify/:verificationToken", asyncWrapper(registrationConfirmationCtrl));
+router.post("/verify", asyncWrapper(retryVerificationCtrl));
 
 module.exports = router;

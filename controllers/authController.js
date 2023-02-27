@@ -1,10 +1,12 @@
 const {
     registration,
+    registrationConfirmation,
     login,
     logout,
     current,
     changeSubscription,
-    updateAvatar
+    updateAvatar,
+    retryVerification
 } = require("../services/authService");
 
 const registrationController = async (req, res) => {
@@ -13,10 +15,24 @@ const registrationController = async (req, res) => {
     res.status(201).json({
         user: {
             email: user.email,
-            subscription: user.subscription
+            subscription: user.subscription,
+            verificationToken: user.verificationToken
         }
     })
 }
+
+const registrationConfirmationCtrl = async (req, res) => {    
+    const {verificationToken} = req.params;    
+    const result = await registrationConfirmation(verificationToken);
+    res.json(result)
+}
+
+const retryVerificationCtrl = async (req, res) => {    
+    const {email} = req.body;  
+    const result = await retryVerification(email);
+    res.json(result)
+}
+
 const loginController = async (req, res) => {
     const {email, password} = req.body;
     const { token, user } = await login(email, password);
@@ -61,5 +77,7 @@ module.exports = {
     logoutController,
     currentUserController,
     changeSubscriptionCtrl,
-    updateAvatarController
+    updateAvatarController,
+    registrationConfirmationCtrl,    
+    retryVerificationCtrl,
 }
